@@ -59,6 +59,7 @@ function GameGrid(scale, game, starter) {
 			}
 			states.push(arrayStates);
 		}
+        console.log(states);
 		uniqueStates = [];
 		$.each(states, function(i, cell){ if($.inArray(cell, uniqueStates) == -1) uniqueStates.push(cell); });
 		return (states.length != uniqueStates.length);
