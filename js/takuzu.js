@@ -2,6 +2,7 @@
 var GRID_SIZE = 8;
 var MAX_ITER = 30;
 
+var SYM_HIDDEN = 1;
 var SYM_ZERO = 2;
 var SYM_ONE = 3;
 
@@ -123,7 +124,7 @@ function genGame() {
     }
 }
 
-function solvable(lines){
+function valid_takuzu(lines){
     var solveAll = true;
     var copy_lines = lines.slice();
     var cols = get_cols(copy_lines);
@@ -183,16 +184,56 @@ function gen_game_from_lines(grid_size){
                 i -= 1;
             }
         }
-        valid = solvable(curr_grid);
+        valid = valid_takuzu(curr_grid);
     }
     return curr_grid;
+}
+
+// takuzu rules
+// no same row
+// no same column
+// each lines is balanced
+// no more than 2 consectutive
+
+function can_be_made_balanced(line){
+    if(countChar(line, SYM_HIDDEN) <= Math.floor(line.length/2)){
+        console.log("TRUE");        
+        return true;
+    } else {
+        console.log("FALSE");
+        return false;
+    }
+}
+
+function clone_grid(grid){
+    var clone = [];
+    for(var i = 0; i < grid.length; i++){
+        clone.push(grid[i].slice());
+    }
+    return clone;
+}
+
+// TODO:not sure if need dedicated grid clone function
+function obscure_sol(grid, max_iter){
+    var curr = clone_grid(grid);
+    for(var i = 0; i < max_iter; i++){
+        var prev = clone_grid(grid);
+        var x = Math.floor(Math.random() * grid.length - 1) + 1;
+        var y = Math.floor(Math.random() * grid.length - 1) + 1;
+        curr[x][y] = SYM_HIDDEN;
+        if(!(can_be_made_balanced(curr[x]) || can_be_made_balanced(get_cols(curr)[y]))){
+            curr = prev;
+        }
+    }
+    return curr;
 }
 
 function gen_grid(grid_size){
     // generate double list of grid
     var grid = gen_game_from_lines(grid_size);
-    console.log(grid);
-    console.log(solvable(grid));
+    //console.log(grid);
+    //console.log(valid_takuzu(grid));
+    grid = obscure_sol(grid, Math.pow(2, grid.length+2));
     // convert for use
     var grid_obj = new Object();
     for(var i = 0; i < grid_size; i += 1){
@@ -203,6 +244,6 @@ function gen_grid(grid_size){
         grid_obj[i] = grid_row;
     }
     // testing
-    grid_obj[0][0] = 1;
-    return grid_obj;   
+    //grid_obj[0][0] = 1;
+    return grid_obj;
 }
